@@ -6,22 +6,30 @@ class MahasiswaMandiri extends Mahasiswa {
     protected string $golonganUkt;
     protected string $namaWali;
 
-    public function __construct(int $idMahasiswa, string $namaMahasiswa, string $nim, int $semester, float $tarifUktNominal, string $jenisPembiyaan, string $golonganUkt, string $namaWali) {
+    public function __construct($idMahasiswa, $namaMahasiswa, $nim, $semester, $tarifUktNominal, $jenisPembiyaan, $golonganUkt, $namaWali) {
         parent::__construct($idMahasiswa, $namaMahasiswa, $nim, $semester, $tarifUktNominal, $jenisPembiyaan);
-        $this->golonganUkt = $golonganUkt;
-        $this->namaWali = $namaWali;
+        $this->golonganUkt = $golonganUkt ?? '';
+        $this->namaWali = $namaWali ?? '';
     }
 
     // OVERRIDING METHOD - TAHAP 5
     public function hitungTagihanSemester(): float {
-        return $this->tarifUktNominal + 100000;
+        return (float)$this->tarifUktNominal + 100000;
     }
 
     public function tampilkanSpesifikasiAkademik(): void {
         echo "Mahasiswa Mandiri: " . $this->namaMahasiswa . " (Golongan: " . $this->golonganUkt . ")";
     }
 
-    public static function getByJalurMandiri(PDO $dbConn): array {
+    // =========================================================================
+    // PERBAIKAN DI SINI: Hapus kunci 'PDO' agar tidak Fatal Error saat DB mati
+    // =========================================================================
+    public static function getByJalurMandiri($dbConn = null): array {
+        // Jika koneksi database null atau gagal, kembalikan array kosong dengan aman
+        if (!$dbConn) {
+            return [];
+        }
+        
         $query = "SELECT * FROM tabel_mahasiswa WHERE jenis_pembiyaan = 'Mandiri'";
         $stmt = $dbConn->prepare($query);
         $stmt->execute();
